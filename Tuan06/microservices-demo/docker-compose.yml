@@ -1,0 +1,39 @@
+version: '3.8'
+services:
+  db-postgre:
+    image: postgres:15
+    environment:
+      - POSTGRES_DB=order_db
+      - POSTGRES_PASSWORD=123
+    ports: ["5432:5432"]
+
+  db-mongo:
+    image: mongo:latest
+    ports: ["27017:27017"]
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"   # Cổng kết nối dữ liệu
+      - "15672:15672" # Cổng giao diện quản lý (Web UI)
+
+  customer-svc:
+    build: ./customer-service
+    container_name: customer-svc
+    depends_on: [db-mongo]
+
+  product-svc:
+    build: ./product-service
+    container_name: product-svc
+    depends_on: [db-mongo, rabbitmq]
+
+  order-svc:
+    build: ./order-service
+    container_name: order-svc
+    depends_on: [db-postgre, rabbitmq]
+
+  gateway:
+    build: ./api-gateway
+    container_name: gateway
+    ports: ["8080:8080"]
+    depends_on: [customer-svc, product-svc, order-svc]

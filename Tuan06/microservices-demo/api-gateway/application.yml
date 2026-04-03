@@ -1,0 +1,19 @@
+server:
+  port: 8080
+
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: customer_route
+          uri: http://customer-svc:8081  
+          predicates:
+            - Path=/customers/**
+        - id: product_route
+          uri: http://product-svc:8082
+          predicates:
+            - Path=/products/**
+        - id: order_route
+          uri: http://order-svc:8083
+          predicates:
+            - Path=/orders/**
